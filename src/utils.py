@@ -1,5 +1,4 @@
 import json
-import os
 from time import time
 import networkx as nx
 from collections import namedtuple
@@ -47,26 +46,43 @@ def benchmark(func):
     return wrapper
 
 
-def convert_to_json(data, path):
+def import_data(file):
+    return pickle.load(open(f"{file}", "rb"))
+
+
+def convert_to_json(alg_name, data, path, mode="all"):
     new_data = {}
-    for k, max_edges_dict in data.items():
-        new_data[k] = {}
-        for max_edges, sizes_dict in max_edges_dict.items():
-            new_data[k][max_edges] = {}
-            for size, results in sizes_dict.items():
-                if results.get("timed_out"):
-                    # If timed out, only include the timed_out field
-                    new_data[k][max_edges][size] = {
-                        "timed_out": True,
-                    }
-                else:
-                    # Otherwise, include all results
-                    new_data[k][max_edges][size] = {
-                        "result": results["result"],
-                        "operations_count": results["operations_count"],
-                        "time": results["time"],
-                        "solution_tested": results["solution_tested"],
-                    }
+    if mode == "all":
+        for k, max_edges_dict in data.items():
+            new_data[k] = {}
+            for max_edges, sizes_dict in max_edges_dict.items():
+                new_data[k][max_edges] = {}
+                for size, results in sizes_dict.items():
+                    if results.get("timed_out"):
+                        # If timed out, only include the timed_out field
+                        new_data[k][max_edges][size] = {
+                            "timed_out": True,
+                        }
+                    else:
+                        # Otherwise, include all results
+                        new_data[k][max_edges][size] = {
+                            "result": results["result"],
+                            "operations_count": results["operations_count"],
+                            "time": results["time"],
+                            "solution_tested": results["solution_tested"],
+                        }
+                        if alg_name != "exhaustive_clique_search":
+                            new_data[k][max_edges][size]["valid_result"] = results[
+                                "valid_result"
+                            ]
+    else:
+        for k, results in data.items():
+            new_data[k] = {
+                "result": results["result"],
+                "operations_count": results["operations_count"],
+                "time": results["time"],
+                "solution_tested": results["solution_tested"],
+            }
 
     # Write JSON data to a file
     with open(path, "w") as json_file:
@@ -75,5 +91,7 @@ def convert_to_json(data, path):
 
 if __name__ == "__main__":
     save_graphs()
-    """ graph = generate_random_graph(107637, 40000, 0.125)
-    pickle.dump(graph, open("../graphs/40000_graphs.pickle", "wb")) """
+
+    for size in [10000, 20000, 30000]:
+        G = generate_random_graph(SEED, size, 0.25)
+        pickle.dump(G, open(f"../graphs/{size}_graph.pickle", "wb"))
