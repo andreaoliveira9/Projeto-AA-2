@@ -96,7 +96,3 @@ def convert_to_json(alg_name, data, path, mode="all"):
 
 if __name__ == "__main__":
     save_graphs()
-
-    """ for size in [10000, 20000, 30000]:
-        G = generate_random_graph(SEED, size, 0.25)
-        pickle.dump(G, open(f"../graphs/{size}_graph.pickle", "wb")) """
