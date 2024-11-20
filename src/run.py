@@ -2,6 +2,11 @@ import signal
 from collections import defaultdict
 from algorithms import (
     exhaustive_clique_search,
+    random_sampling_clique,
+    monte_carlo_clique,
+    monte_carlo_with_heuristic,
+    las_vegas_clique,
+    randomized_heuristic_clique,
 )
 from utils import EDGES_DENSITY, SIZES, log, convert_to_json
 import pickle
@@ -11,7 +16,6 @@ graphs = pickle.load(open("../graphs/all_graphs.pickle", "rb"))
 
 # Lista de valores de clique de tamanho k que estamos procurando
 k_values = [5, 6, 7, 8, 9, 10, 15]  # Exemplo, ajuste conforme necessário
-TIME_LIMIT = 50  # Defina o limite de tempo em segundos
 cliques = {}
 
 
@@ -38,7 +42,7 @@ def run(algorithm, name):
                 try:
                     # Start the timer
                     signal.signal(signal.SIGALRM, timeout_handler)
-                    signal.alarm(TIME_LIMIT)
+                    signal.alarm(int(1 / 1700 * size**2 + 0.8))
 
                     (
                         algorithm_name,
@@ -46,7 +50,7 @@ def run(algorithm, name):
                         operations_count,
                         time,
                         solution_tested,
-                    ) = algorithm(graphs[max_edges][size], k)
+                    ) = algorithm(graphs[max_edges][size], k, 80 * size**2 + 75000)
 
                     # Cancel the timer if completed within time limit
                     signal.alarm(0)
@@ -153,14 +157,19 @@ def run_singular(graph_size, k_values, algorithm, name):
 # Função principal que executa todos os algoritmos
 def marathon():
     algorithms = [
-        (exhaustive_clique_search, "exhaustive_clique_search"),
+        # (exhaustive_clique_search, "exhaustive_clique_search"),
+        (random_sampling_clique, "random_sampling_clique"),
+        # (monte_carlo_clique, "monte_carlo_clique"),
+        # (monte_carlo_with_heuristic, "monte_carlo_with_heuristic"),
+        # (las_vegas_clique, "las_vegas_clique"),
+        # (randomized_heuristic_clique, "randomized_heuristic_clique"),
     ]
 
     # Executar todos os algoritmos
     for algorithm, name in algorithms:
         run(algorithm, name)
-        for size in [10000, 20000, 30000]:
-            run_singular(size, k_values, algorithm, name)
+        """ for size in [10000, 20000, 30000]:
+            run_singular(size, k_values, algorithm, name) """
 
 
 if __name__ == "__main__":

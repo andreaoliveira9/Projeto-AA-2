@@ -1,7 +1,7 @@
 import itertools
 import random
-import math
 from utils import benchmark
+from time import time
 
 
 def is_clique(graph, subset):
@@ -15,10 +15,10 @@ def exhaustive_clique_search(graph, clique_size):
     operations_count = 0
 
     for subset in itertools.combinations(node_list, clique_size):
-        solutions_tested += 1  # Increment tested solutions
+        solutions_tested += 1
         operations_count += 1 + sum(1 for _ in itertools.combinations(subset, 2))
         if is_clique(graph, subset):
-            return subset, operations_count, solutions_tested
+            return subset, operations_count, solutions_tested  # Stop immediately
 
     return None, operations_count, solutions_tested
 
@@ -30,11 +30,13 @@ def random_sampling_clique(graph, clique_size, num_trials=1000):
     solutions_tested = 0
 
     for _ in range(num_trials):
+        if operations_count > 150 * graph.size() ** 2 + 100000:
+            break
         subset = random.sample(node_list, clique_size)
         solutions_tested += 1
         operations_count += 1 + sum(1 for _ in itertools.combinations(subset, 2))
         if is_clique(graph, subset):
-            return subset, operations_count, solutions_tested
+            return subset, operations_count, solutions_tested  # Stop immediately
 
     return None, operations_count, solutions_tested
 
@@ -51,7 +53,10 @@ def monte_carlo_clique(graph, clique_size, num_trials=1000):
         subset.append(node)
         neighbors = set(graph.neighbors(node))
 
-        while len(subset) < clique_size:
+        while (
+            len(subset) < clique_size
+            or operations_count < 150 * graph.size() ** 2 + 100000
+        ):
             if not neighbors:
                 break
             candidate = random.choice(list(neighbors))
@@ -61,23 +66,74 @@ def monte_carlo_clique(graph, clique_size, num_trials=1000):
 
         solutions_tested += 1
         if len(subset) == clique_size and is_clique(graph, subset):
-            return subset, operations_count, solutions_tested
+            return subset, operations_count, solutions_tested  # Stop immediately
 
     return None, operations_count, solutions_tested
 
 
 @benchmark
-def las_vegas_clique(graph, clique_size, max_restarts=1000):
+def monte_carlo_with_heuristic(graph, clique_size, num_trials=1000):
+    """
+    Algoritmo Monte Carlo que combina geração aleatória com heurísticas.
+    """
+    node_list = list(graph.nodes)
+    solutions_tested = set()
+    operations_count = 0  # Contador de operações
+
+    for _ in range(num_trials):
+        subset = []
+        # Inicia com um nó aleatório
+        node = random.choice(node_list)
+        subset.append(node)
+        neighbors = set(graph.neighbors(node))
+        operations_count += 1  # Escolha do nó inicial
+
+        # Usa heurísticas para expandir o subconjunto
+        while len(subset) < clique_size:
+            if not neighbors or operations_count > 150 * graph.size() ** 2 + 100000:
+                break
+            # Ordena vizinhos por grau (heurística) e seleciona o melhor
+            neighbors = sorted(
+                neighbors, key=lambda x: len(list(graph.neighbors(x))), reverse=True
+            )
+            operations_count += len(neighbors)  # Operação de ordenação
+            candidate = random.choice(neighbors[: max(1, len(neighbors) // 2)])
+            subset.append(candidate)
+            neighbors.intersection_update(graph.neighbors(candidate))
+            operations_count += 1  # Atualização do conjunto de vizinhos
+
+        # Evita redundâncias
+        subset_id = tuple(sorted(subset))
+        operations_count += len(subset)  # Operação de ordenação
+        if subset_id in solutions_tested:
+            continue
+        solutions_tested.add(subset_id)
+        operations_count += 1  # Adiciona ao conjunto
+
+        # Verifica se a solução é válida
+        if len(subset) == clique_size and is_clique(graph, subset):
+            operations_count += sum(
+                1 for _ in itertools.combinations(subset, 2)
+            )  # Checagem do clique
+            return subset, operations_count, len(solutions_tested)  # Para imediatamente
+
+    return None, operations_count, len(solutions_tested)
+
+
+@benchmark
+def las_vegas_clique(graph, clique_size, num_trials=1000):
     node_list = list(graph.nodes)
     operations_count = 0
     solutions_tested = 0
 
-    for _ in range(max_restarts):
+    for _ in range(num_trials):
         subset = []
         candidate_nodes = node_list[:]
         random.shuffle(candidate_nodes)
 
         for node in candidate_nodes:
+            if operations_count > 150 * graph.size() ** 2 + 100000:
+                break
             if len(subset) < clique_size and all(
                 graph.has_edge(node, v) for v in subset
             ):
@@ -86,99 +142,60 @@ def las_vegas_clique(graph, clique_size, max_restarts=1000):
 
         solutions_tested += 1
         if len(subset) == clique_size:
-            return subset, operations_count, solutions_tested
+            return subset, operations_count, solutions_tested  # Stop immediately
 
     return None, operations_count, solutions_tested
 
 
 @benchmark
-def simulated_annealing_clique(
-    graph, clique_size, initial_temp=1000, cooling_rate=0.99, max_iter=1000
-):
+def randomized_heuristic_clique(graph, clique_size, num_trials=1000):
+    """
+    Combina geração aleatória com heurísticas para encontrar um clique.
+    """
     node_list = list(graph.nodes)
-    current_subset = random.sample(node_list, clique_size)
-    current_energy = sum(
-        1
-        for u, v in itertools.combinations(current_subset, 2)
-        if not graph.has_edge(u, v)
-    )
-    temperature = initial_temp
-    operations_count = 0
+    tested_solutions = set()
+    operations_count = 0  # Contador de operações
 
-    for _ in range(max_iter):
-        if temperature <= 0:
+    def heuristic(node):
+        """Heurística: Retorna o número de vizinhos de um nó."""
+        return len(list(graph.neighbors(node)))
+
+    def generate_candidate():
+        """
+        Gera uma solução candidata usando um misto de randomização
+        e heurísticas.
+        """
+        nonlocal operations_count
+        # Ordena nós com base na heurística (nós com mais vizinhos primeiro)
+        sorted_nodes = sorted(node_list, key=heuristic, reverse=True)
+        operations_count += len(node_list)  # Operação de ordenação
+        # Seleciona aleatoriamente, mas com viés para os primeiros (mais conectados)
+        subset = random.sample(sorted_nodes[: len(sorted_nodes) // 2], clique_size)
+        operations_count += clique_size  # Operação de seleção
+        return subset
+
+    for iteration in range(num_trials):
+        if operations_count > 150 * graph.size() ** 2 + 100000:
             break
+        # Gera uma solução candidata
+        candidate = generate_candidate()
+        candidate_id = tuple(sorted(candidate))
+        operations_count += len(candidate)  # Operação de ordenação
+        if candidate_id in tested_solutions:
+            continue
+        tested_solutions.add(candidate_id)
+        operations_count += 1  # Adiciona ao conjunto
 
-        # Neighbor generation: swap a random node
-        new_subset = current_subset[:]
-        replace_index = random.randint(0, clique_size - 1)
-        new_node = random.choice([n for n in node_list if n not in new_subset])
-        new_subset[replace_index] = new_node
+        # Avalia a solução
+        if is_clique(graph, candidate):
+            operations_count += sum(
+                1 for _ in itertools.combinations(candidate, 2)
+            )  # Checagem do clique
+            return (
+                candidate,
+                iteration,
+                operations_count,
+                len(tested_solutions),
+            )  # Para imediatamente
 
-        new_energy = sum(
-            1
-            for u, v in itertools.combinations(new_subset, 2)
-            if not graph.has_edge(u, v)
-        )
-        operations_count += clique_size
-
-        # Decide whether to accept the new state
-        if new_energy < current_energy or random.random() < math.exp(
-            (current_energy - new_energy) / temperature
-        ):
-            current_subset, current_energy = new_subset, new_energy
-
-        # Cooling
-        temperature *= cooling_rate
-
-        if current_energy == 0 and len(current_subset) == clique_size:
-            return current_subset, operations_count, _  # Found solution
-
-    return None, operations_count, max_iter
-
-
-@benchmark
-def genetic_clique(graph, clique_size, population_size=50, generations=100):
-    node_list = list(graph.nodes)
-    population = [random.sample(node_list, clique_size) for _ in range(population_size)]
-    operations_count = 0
-
-    def fitness(subset):
-        return sum(
-            1 for u, v in itertools.combinations(subset, 2) if graph.has_edge(u, v)
-        )
-
-    for _ in range(generations):
-        # Evaluate fitness
-        population = sorted(population, key=fitness, reverse=True)
-        if fitness(population[0]) == clique_size * (clique_size - 1) // 2:
-            return population[0], operations_count, _
-
-        # Selection and crossover
-        new_population = population[: population_size // 2]
-        while len(new_population) < population_size:
-            parents = random.sample(new_population[:10], 2)
-            crossover_point = random.randint(1, clique_size - 1)
-            child = parents[0][:crossover_point] + parents[1][crossover_point:]
-            child = list(set(child))  # Ensure no duplicates
-            if len(child) < clique_size:
-                child.extend(
-                    random.sample(
-                        [n for n in node_list if n not in child],
-                        clique_size - len(child),
-                    )
-                )
-            new_population.append(child)
-
-        # Mutation
-        for individual in new_population:
-            if random.random() < 0.1:  # Mutation probability
-                mutate_index = random.randint(0, clique_size - 1)
-                individual[mutate_index] = random.choice(
-                    [n for n in node_list if n not in individual]
-                )
-
-        population = new_population
-        operations_count += population_size * clique_size
-
-    return None, operations_count, generations
+    return None, None, operations_count, len(tested_solutions)
