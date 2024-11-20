@@ -35,7 +35,10 @@ def run(algorithm, name):
     for k in k_values:
         for max_edges in EDGES_DENSITY:
             cliques[max_edges] = {}
-            for size in range(k, SIZES):
+            for size in range(1, SIZES + 1):
+                if size > 300 and size % 5 != 0:
+                    continue
+
                 log.info(
                     f"Running {name} algorithm for graph with size {size}, clique size {k}, and density of edges {max_edges}"
                 )
@@ -44,13 +47,24 @@ def run(algorithm, name):
                     signal.signal(signal.SIGALRM, timeout_handler)
                     signal.alarm(int(1 / 1700 * size**2 + 0.8))
 
-                    (
-                        algorithm_name,
-                        result,
-                        operations_count,
-                        time,
-                        solution_tested,
-                    ) = algorithm(graphs[max_edges][size], k, 80 * size**2 + 75000)
+                    if name == "exhaustive_clique_search":
+                        (
+                            algorithm_name,
+                            result,
+                            operations_count,
+                            time,
+                            solution_tested,
+                        ) = algorithm(graphs[max_edges][size], k)
+                    else:
+                        (
+                            algorithm_name,
+                            result,
+                            operations_count,
+                            time,
+                            solution_tested,
+                        ) = algorithm(
+                            graphs[max_edges][size], k, 80 * size**2 + 75000
+                        )
 
                     # Cancel the timer if completed within time limit
                     signal.alarm(0)
