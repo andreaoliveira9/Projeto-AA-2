@@ -48,6 +48,8 @@ def monte_carlo_clique(graph, clique_size, num_trials=1000):
     solutions_tested = 0
 
     for _ in range(num_trials):
+        if operations_count > 150 * graph.size() ** 2 + 100000:
+            break
         subset = []
         node = random.choice(node_list)
         subset.append(node)
@@ -81,6 +83,8 @@ def monte_carlo_with_heuristic(graph, clique_size, num_trials=1000):
     operations_count = 0  # Contador de operações
 
     for _ in range(num_trials):
+        if operations_count > 150 * graph.size() ** 2 + 100000:
+            break
         subset = []
         # Inicia com um nó aleatório
         node = random.choice(node_list)
