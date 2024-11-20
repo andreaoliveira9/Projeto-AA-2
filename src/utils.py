@@ -9,7 +9,7 @@ log = logging.getLogger(__name__)
 
 EDGES_DENSITY = [0.75, 0.5, 0.25, 0.125]
 SEED = 107637
-SIZES = 256
+SIZES = 10000
 
 Result = namedtuple(
     "Result", ["function", "result", "operations", "time", "solutions_tested"]
@@ -24,7 +24,10 @@ def generate_all_graphs():
     all_graphs = {}
     for maximum_number_edges in EDGES_DENSITY:
         all_graphs[maximum_number_edges] = {}
-        for size in range(1, SIZES):
+        for size in range(1, 300):
+            G = generate_random_graph(SEED, size, maximum_number_edges)
+            all_graphs[maximum_number_edges][size] = G
+        for size in range(300, SIZES + 1):
             G = generate_random_graph(SEED, size, maximum_number_edges)
             all_graphs[maximum_number_edges][size] = G
     return all_graphs
@@ -92,6 +95,6 @@ def convert_to_json(alg_name, data, path, mode="all"):
 if __name__ == "__main__":
     save_graphs()
 
-    for size in [10000, 20000, 30000]:
+    """ for size in [10000, 20000, 30000]:
         G = generate_random_graph(SEED, size, 0.25)
-        pickle.dump(G, open(f"../graphs/{size}_graph.pickle", "wb"))
+        pickle.dump(G, open(f"../graphs/{size}_graph.pickle", "wb")) """

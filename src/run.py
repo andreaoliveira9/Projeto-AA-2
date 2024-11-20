@@ -113,63 +113,20 @@ def run(algorithm, name):
     log.info(f"Results for {name} algorithm saved to pickle and json files")
 
 
-def run_singular(graph_size, k_values, algorithm, name):
-    if name == "exhaustive_clique_search":
-        return
-
-    if graph_size == 10000:
-        file = pickle.load(open("../graphs/10000_graph.pickle", "rb"))
-    elif graph_size == 20000:
-        file = pickle.load(open("../graphs/20000_graph.pickle", "rb"))
-    elif graph_size == 30000:
-        file = pickle.load(open("../graphs/30000_graph.pickle", "rb"))
-    elif graph_size == 40000:
-        file = pickle.load(open("../graphs/40000_graph.pickle", "rb"))
-
-    results = defaultdict(dict)
-    for k in k_values:
-        (
-            algorithm_name,
-            result,
-            operations_count,
-            time,
-            solution_tested,
-        ) = algorithm(file, k)
-
-        results[k] = {
-            "result": result,
-            "operations_count": operations_count,
-            "time": time,
-            "solution_tested": solution_tested,
-        }
-
-        pickle.dump(
-            results, open(f"../results/pickle/{name}_{graph_size}.pickle", "wb")
-        )
-        convert_to_json(
-            name, results, f"../results/json/{name}_{graph_size}.json", "singular"
-        )
-        log.info(
-            f"Results for {name} algorithm with graphs size {graph_size} and k{k} saved to pickle and json files"
-        )
-
-
 # Função principal que executa todos os algoritmos
 def marathon():
     algorithms = [
-        # (exhaustive_clique_search, "exhaustive_clique_search"),
+        (exhaustive_clique_search, "exhaustive_clique_search"),
         (random_sampling_clique, "random_sampling_clique"),
-        # (monte_carlo_clique, "monte_carlo_clique"),
-        # (monte_carlo_with_heuristic, "monte_carlo_with_heuristic"),
-        # (las_vegas_clique, "las_vegas_clique"),
-        # (randomized_heuristic_clique, "randomized_heuristic_clique"),
+        (monte_carlo_clique, "monte_carlo_clique"),
+        (monte_carlo_with_heuristic, "monte_carlo_with_heuristic"),
+        (las_vegas_clique, "las_vegas_clique"),
+        (randomized_heuristic_clique, "randomized_heuristic_clique"),
     ]
 
     # Executar todos os algoritmos
     for algorithm, name in algorithms:
         run(algorithm, name)
-        """ for size in [10000, 20000, 30000]:
-            run_singular(size, k_values, algorithm, name) """
 
 
 if __name__ == "__main__":
