@@ -176,7 +176,10 @@ def randomized_heuristic_clique(graph, clique_size, num_trials=1000):
         sorted_nodes = sorted(node_list, key=heuristic, reverse=True)
         operations_count += len(node_list)  # Operação de ordenação
         # Seleciona aleatoriamente, mas com viés para os primeiros (mais conectados)
-        subset = random.sample(sorted_nodes[: len(sorted_nodes) // 2], clique_size)
+        candidate_pool = sorted_nodes[: len(sorted_nodes) // 2]
+        if len(candidate_pool) < clique_size:
+            return None  # População insuficiente para formar um clique
+        subset = random.sample(candidate_pool, clique_size)
         operations_count += clique_size  # Operação de seleção
         return subset
 
@@ -185,6 +188,8 @@ def randomized_heuristic_clique(graph, clique_size, num_trials=1000):
             break
         # Gera uma solução candidata
         candidate = generate_candidate()
+        if candidate is None:  # Pule esta iteração se não for possível gerar um clique
+            continue
         candidate_id = tuple(sorted(candidate))
         operations_count += len(candidate)  # Operação de ordenação
         if candidate_id in tested_solutions:
@@ -203,4 +208,4 @@ def randomized_heuristic_clique(graph, clique_size, num_trials=1000):
                 len(tested_solutions),
             )  # Para imediatamente
 
-    return None, None, operations_count, len(tested_solutions)
+    return None, operations_count, len(tested_solutions)
