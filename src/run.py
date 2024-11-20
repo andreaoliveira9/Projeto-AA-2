@@ -17,6 +17,7 @@ graphs = pickle.load(open("../graphs/all_graphs.pickle", "rb"))
 # Lista de valores de clique de tamanho k que estamos procurando
 k_values = [5, 6, 7, 8, 9, 10, 15]  # Exemplo, ajuste conforme necessário
 cliques = {}
+TIME_LIMIT = 50
 
 
 # Timeout handler function
@@ -45,7 +46,10 @@ def run(algorithm, name):
                 try:
                     # Start the timer
                     signal.signal(signal.SIGALRM, timeout_handler)
-                    signal.alarm(int(1 / 1700 * size**2 + 0.8))
+                    if name == "exhaustive_clique_search":
+                        signal.alarm(TIME_LIMIT)
+                    else:
+                        signal.alarm(int(1 / 1700 * size**2 + 0.8))
 
                     if name == "exhaustive_clique_search":
                         (
