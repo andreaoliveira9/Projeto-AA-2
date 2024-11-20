@@ -1,7 +1,6 @@
 import itertools
 import random
 from utils import benchmark
-from time import time
 
 
 def is_clique(graph, subset):
@@ -74,7 +73,7 @@ def monte_carlo_clique(graph, clique_size, num_trials=1000):
 
 
 @benchmark
-def monte_carlo_with_heuristic(graph, clique_size, num_trials=1000):
+def monte_carlo_with_heuristic_clique(graph, clique_size, num_trials=1000):
     """
     Algoritmo Monte Carlo que combina geração aleatória com heurísticas.
     """
@@ -183,7 +182,7 @@ def randomized_heuristic_clique(graph, clique_size, num_trials=1000):
         operations_count += clique_size  # Operação de seleção
         return subset
 
-    for iteration in range(num_trials):
+    for _ in range(num_trials):
         if operations_count > 150 * graph.size() ** 2 + 100000:
             break
         # Gera uma solução candidata

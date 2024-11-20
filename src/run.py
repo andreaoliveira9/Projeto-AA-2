@@ -4,7 +4,7 @@ from algorithms import (
     exhaustive_clique_search,
     random_sampling_clique,
     monte_carlo_clique,
-    monte_carlo_with_heuristic,
+    monte_carlo_with_heuristic_clique,
     las_vegas_clique,
     randomized_heuristic_clique,
 )
@@ -119,7 +119,7 @@ def marathon():
         (exhaustive_clique_search, "exhaustive_clique_search"),
         (random_sampling_clique, "random_sampling_clique"),
         (monte_carlo_clique, "monte_carlo_clique"),
-        (monte_carlo_with_heuristic, "monte_carlo_with_heuristic"),
+        (monte_carlo_with_heuristic_clique, "monte_carlo_with_heuristic_clique"),
         (las_vegas_clique, "las_vegas_clique"),
         (randomized_heuristic_clique, "randomized_heuristic_clique"),
     ]
