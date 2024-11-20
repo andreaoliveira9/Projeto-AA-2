@@ -9,7 +9,7 @@ log = logging.getLogger(__name__)
 
 EDGES_DENSITY = [0.75, 0.5, 0.25, 0.125]
 SEED = 107637
-SIZES = 10000
+SIZES = 1000
 
 Result = namedtuple(
     "Result", ["function", "result", "operations", "time", "solutions_tested"]
@@ -27,9 +27,11 @@ def generate_all_graphs():
         for size in range(1, 300):
             G = generate_random_graph(SEED, size, maximum_number_edges)
             all_graphs[maximum_number_edges][size] = G
-        for size in range(300, SIZES + 1):
+            print(f"Generated graph with {size} nodes and {maximum_number_edges} edges")
+        for size in range(300, SIZES + 1, 5):
             G = generate_random_graph(SEED, size, maximum_number_edges)
             all_graphs[maximum_number_edges][size] = G
+            print(f"Generated graph with {size} nodes and {maximum_number_edges} edges")
     return all_graphs
 
 
