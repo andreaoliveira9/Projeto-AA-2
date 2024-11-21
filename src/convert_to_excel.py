@@ -70,83 +70,12 @@ def convert_normal_to_excel(input_dir, files, output_file):
     print("Excel file created successfully!")
 
 
-def convert_big_to_excel(input_dir, files, output_file):
-    # Cria um workbook Excel
-    wb = Workbook()
-
-    for file_index, file in enumerate(files):
-        print(f"Processing {file}...")
-
-        # Lê o conteúdo do ficheiro JSON
-        with open(os.path.join(input_dir, file), "r") as f:
-            results = json.load(f)
-
-        # Define o nome da folha, sanitizando se necessário
-        sheet_name = sanitize_sheet_name(
-            file.replace(".json", "").replace("_clique_search", "")
-        )
-        ws = wb.create_sheet(title=sheet_name) if file_index > 0 else wb.active
-        ws.title = sheet_name
-
-        # Cabeçalhos
-        headers = [
-            "k",
-            "Result",
-            "Operations Count",
-            "Time (s)",
-            "Solution Tested",
-        ]
-        ws.append(headers)
-
-        # Processa os dados e escreve no Excel
-        for k, data in results.items():
-            result = (
-                ", ".join(map(str, data.get("result", [])))
-                if data.get("result")
-                else None
-            )
-            row = [
-                k,
-                result,
-                data.get("operations_count"),
-                data.get("time"),
-                data.get("solution_tested"),
-            ]
-            ws.append(row)
-
-    # Salva o workbook
-    try:
-        wb.save(output_file)
-        print(f"Ficheiro Excel criado: {output_file}")
-    except Exception as e:
-        print(f"Erro ao salvar o ficheiro Excel: {e}")
-
-
 if __name__ == "__main__":
     # Diretórios de entrada e saída
     input_dir = "../results/json"
-    output_file = "../results/results_1_256.xlsx"
+    output_file = "../results/results.xlsx"
 
     # Lista de ficheiros JSON no diretório de entrada
-    files = [
-        f
-        for f in os.listdir(input_dir)
-        if f.endswith(".json")
-        and "10000" not in f
-        and "20000" not in f
-        and "30000" not in f
-    ]
+    files = [f for f in os.listdir(input_dir) if f.endswith(".json")]
 
     convert_normal_to_excel(input_dir, files, output_file)
-
-    files = [
-        f
-        for f in os.listdir(input_dir)
-        if f.endswith("10000.json")
-        or f.endswith("20000.json")
-        or f.endswith("30000.json")
-    ]
-
-    output_file = "../results/results_10000_20000_30000.xlsx"
-
-    convert_big_to_excel(input_dir, files, output_file)
