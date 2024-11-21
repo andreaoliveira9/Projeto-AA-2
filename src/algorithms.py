@@ -7,6 +7,10 @@ def is_clique(graph, subset):
     return all(graph.has_edge(u, v) for u, v in itertools.combinations(subset, 2))
 
 
+def is_small_graph(nodes, clique_size):
+    return len(nodes) < clique_size
+
+
 @benchmark
 def exhaustive_clique_search(graph, clique_size):
     node_list = list(graph.nodes)
@@ -25,6 +29,10 @@ def exhaustive_clique_search(graph, clique_size):
 @benchmark
 def random_sampling_clique(graph, clique_size, num_trials=1000):
     node_list = list(graph.nodes)
+
+    if is_small_graph(node_list, clique_size):
+        return None, 0, 0
+
     operations_count = 0
     solutions_tested = 0
 
@@ -43,6 +51,10 @@ def random_sampling_clique(graph, clique_size, num_trials=1000):
 @benchmark
 def monte_carlo_clique(graph, clique_size, num_trials=1000):
     node_list = list(graph.nodes)
+
+    if is_small_graph(node_list, clique_size):
+        return None, 0, 0
+
     operations_count = 0
     solutions_tested = 0
 
@@ -78,6 +90,10 @@ def monte_carlo_with_heuristic_clique(graph, clique_size, num_trials=1000):
     Algoritmo Monte Carlo que combina geração aleatória com heurísticas.
     """
     node_list = list(graph.nodes)
+
+    if is_small_graph(node_list, clique_size):
+        return None, 0, 0
+
     solutions_tested = set()
     operations_count = 0  # Contador de operações
 
@@ -126,6 +142,10 @@ def monte_carlo_with_heuristic_clique(graph, clique_size, num_trials=1000):
 @benchmark
 def las_vegas_clique(graph, clique_size, num_trials=1000):
     node_list = list(graph.nodes)
+
+    if is_small_graph(node_list, clique_size):
+        return None, 0, 0
+
     operations_count = 0
     solutions_tested = 0
 
@@ -158,6 +178,10 @@ def randomized_heuristic_clique(graph, clique_size, num_trials=1000):
     Combina geração aleatória com heurísticas para encontrar um clique.
     """
     node_list = list(graph.nodes)
+
+    if is_small_graph(node_list, clique_size):
+        return None, 0, 0
+
     tested_solutions = set()
     operations_count = 0  # Contador de operações
 
