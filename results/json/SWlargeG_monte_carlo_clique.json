@@ -1,0 +1,98 @@
+{
+    "5": {
+        "result": [
+            816232,
+            319797,
+            655075,
+            861381,
+            713160
+        ],
+        "operations_count": 21,
+        "time": 1.580819845199585,
+        "solution_tested": 4,
+        "valid_result": "No valid result to compare"
+    },
+    "6": {
+        "result": [
+            561176,
+            833324,
+            231798,
+            13432,
+            79533,
+            85479
+        ],
+        "operations_count": 79,
+        "time": 5.529659748077393,
+        "solution_tested": 12,
+        "valid_result": "No valid result to compare"
+    },
+    "7": {
+        "result": [
+            285752,
+            577442,
+            388070,
+            464175,
+            434335,
+            458408,
+            732671
+        ],
+        "operations_count": 74,
+        "time": 4.262721061706543,
+        "solution_tested": 11,
+        "valid_result": "No valid result to compare"
+    },
+    "8": {
+        "result": [
+            640234,
+            568017,
+            934740,
+            588124,
+            62583,
+            122955,
+            214367,
+            23694
+        ],
+        "operations_count": 7,
+        "time": 0.2484889030456543,
+        "solution_tested": 1,
+        "valid_result": "No valid result to compare"
+    },
+    "9": {
+        "result": [
+            403224,
+            592014,
+            759584,
+            932195,
+            93500,
+            331283,
+            525601,
+            640795,
+            293780
+        ],
+        "operations_count": 49,
+        "time": 1.6959140300750732,
+        "solution_tested": 7,
+        "valid_result": "No valid result to compare"
+    },
+    "10": {
+        "result": [
+            261735,
+            907843,
+            448626,
+            969598,
+            842079,
+            901095,
+            466294,
+            554189,
+            177409,
+            115654
+        ],
+        "operations_count": 60,
+        "time": 1.5792269706726074,
+        "solution_tested": 10,
+        "valid_result": "No valid result to compare"
+    },
+    "15": {
+        "timed_out": true
+    }
+}
