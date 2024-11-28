@@ -9,12 +9,20 @@ def plot_number_operations_vs_number_of_vertices(
     for max_edges in EDGES_DENSITY:
         x = []
         y = []
-        for size in range(k, 256):
+        for size in range(k, 300):
             try:
                 y.append(results[k][max_edges][size]["operations_count"])
             except KeyError:
                 break
             x.append(size)
+
+        for size in range(300, 1001, 5):
+            try:
+                y.append(results[k][max_edges][size]["operations_count"])
+            except KeyError:
+                break
+            x.append(size)
+
         if log:
             plt.semilogy(x, y, label=f"edges ratio: {max_edges}")
         else:
@@ -42,7 +50,14 @@ def plot_time_vs_number_of_vertices(
     for max_edges in EDGES_DENSITY:
         x = []
         y = []
-        for size in range(k, 256):
+        for size in range(k, 300):
+            try:
+                y.append(results[k][max_edges][size]["time"])
+            except KeyError:
+                break
+            x.append(size)
+
+        for size in range(300, 1001, 5):
             try:
                 y.append(results[k][max_edges][size]["time"])
             except KeyError:
@@ -72,12 +87,20 @@ def plot_number_of_solutions_tested_vs_graph_size(
     for max_edges in EDGES_DENSITY:
         x = []
         y = []
-        for size in range(k, 256):
+        for size in range(k, 300):
             try:
                 y.append(results[k][max_edges][size]["solution_tested"])
             except KeyError:
                 break
             x.append(size)
+
+        for size in range(300, 1001, 5):
+            try:
+                y.append(results[k][max_edges][size]["solution_tested"])
+            except KeyError:
+                break
+            x.append(size)
+
         if log:
             plt.semilogy(x, y, label=f"edges ratio: {max_edges}")
         else:
