@@ -11,6 +11,7 @@ from algorithms import (
 from utils import EDGES_DENSITY, SIZES, log, convert_to_json
 import pickle
 import json
+import os
 
 # Carregar os grafos previamente gerados
 graphs = pickle.load(open("../graphs/all_graphs.pickle", "rb"))
@@ -227,12 +228,17 @@ def SWlargeG(algorithm, name):
             signal.alarm(0)  # Disable any alarm just in case
 
     pickle.dump(results, open(f"../results/pickle/SWlargeG_{name}.pickle", "wb"))
-    json.dump(
-        results,
-        "./results/pickle/SWlargeG_{name}.json",
-        ensure_ascii=False,
-        indent=4,
-    )
+
+    file_path = f"../results/pickle/SWlargeG_{name}.json"
+    os.makedirs(os.path.dirname(file_path), exist_ok=True)
+    with open(file_path, "w", encoding="utf-8") as json_file:
+        json.dump(
+            results,
+            json_file,
+            ensure_ascii=False,
+            indent=4,
+        )
+
     log.info(f"Results for {name} algorithm saved to pickle and json files")
 
 
