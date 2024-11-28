@@ -17,7 +17,7 @@ graphs = pickle.load(open("../graphs/all_graphs.pickle", "rb"))
 # Lista de valores de clique de tamanho k que estamos procurando
 k_values = [5, 6, 7, 8, 9, 10, 15]  # Exemplo, ajuste conforme necessário
 cliques = {}
-TIME_LIMIT = 50
+TIME_LIMIT = 100
 
 
 # Timeout handler function
@@ -144,8 +144,94 @@ def marathon():
 
     # Executar todos os algoritmos
     for algorithm, name in algorithms:
-        run(algorithm, name)
+        # run(algorithm, name)
+        SWlargeG(algorithm, name)
+
+
+def SWlargeG(algorithm, name):
+    graph = pickle.load(open("../graphs/SWlargeG.pickle", "rb"))
+
+    if name != "exhaustive_clique_search":
+        results_exhaustive = pickle.load(
+            open(f"../results/pickle/SWlargeG_exhaustive_clique_search.pickle", "rb")
+        )
+
+    results = defaultdict(dict)
+    for k in k_values:
+        log.info(f"Running {name} algorithm for SWlargeG graph with clique size {k}")
+        try:
+            # Start the timer
+            signal.signal(signal.SIGALRM, timeout_handler)
+            if name == "exhaustive_clique_search":
+                signal.alarm(TIME_LIMIT)
+            else:
+                signal.alarm(50)
+
+            if name == "exhaustive_clique_search":
+                (
+                    algorithm_name,
+                    result,
+                    operations_count,
+                    time,
+                    solution_tested,
+                ) = algorithm(graph, k)
+            else:
+                (
+                    algorithm_name,
+                    result,
+                    operations_count,
+                    time,
+                    solution_tested,
+                ) = algorithm(graph, k, 80 * graph.size() ** 2 + 75000)
+
+            # Cancel the timer if completed within time limit
+            signal.alarm(0)
+
+            # Initialize results dictionary keys if needed
+            if k not in results:
+                results[k] = {}
+
+            results[k] = {
+                "result": result,
+                "operations_count": operations_count,
+                "time": time,
+                "solution_tested": solution_tested,
+            }
+
+            if algorithm_name != "exhaustive_clique_search":
+                try:
+                    result_exhaustive = results_exhaustive[k]["result"]
+
+                    if result is not None:
+                        results[k]["valid_result"] = (
+                            True if type(result_exhaustive) == tuple else False
+                        )
+                    else:
+                        results[k]["valid_result"] = (
+                            False if type(result_exhaustive) == tuple else True
+                        )
+                except KeyError:
+                    results[k]["valid_result"] = "No valid result to compare"
+
+        except TimeoutError:
+            log.warning(
+                f"{name} algorithm timed out for SWlargeG graph with clique size {k}"
+            )
+
+            if k not in results:
+                results[k] = {}
+
+            results[k] = {
+                "timed_out": True,
+            }
+
+            signal.alarm(0)  # Disable any alarm just in case
+
+    pickle.dump(results, open(f"../results/pickle/SWlargeG_{name}.pickle", "wb"))
+    convert_to_json(name, results, f"../results/json/SWlargeG_{name}.json")
+    log.info(f"Results for {name} algorithm saved to pickle and json files")
 
 
 if __name__ == "__main__":
     marathon()
+    SWlargeG()

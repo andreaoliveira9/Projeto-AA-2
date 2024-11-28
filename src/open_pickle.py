@@ -3,7 +3,7 @@ import pickle
 
 # Abra o ficheiro pickle em modo de leitura binária
 with open(
-    "/Users/andreoliveira/Library/CloudStorage/OneDrive-UniversidadedeAveiro/1º Semestre/Algoritmos Avançados/Projeto 1/results/pickle/greedy_clique_search.pickle",
+    "/Users/andreoliveira/Documents/GitHub/Projeto-AA-2/graphs/SWlargeG.pickle",
     "rb",
 ) as f:
     dados = pickle.load(f)
