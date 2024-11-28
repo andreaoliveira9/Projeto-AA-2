@@ -232,4 +232,3 @@ def SWlargeG(algorithm, name):
 
 if __name__ == "__main__":
     marathon()
-    SWlargeG()
