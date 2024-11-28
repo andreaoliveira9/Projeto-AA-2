@@ -1,9 +1,10 @@
 # ficheiro pickle
 import pickle
 
+path = input("Introduza o caminho do ficheiro pickle: ")
 # Abra o ficheiro pickle em modo de leitura binária
 with open(
-    "/Users/andreoliveira/Documents/GitHub/Projeto-AA-2/graphs/SWlargeG.pickle",
+    path,
     "rb",
 ) as f:
     dados = pickle.load(f)
