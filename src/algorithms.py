@@ -194,7 +194,7 @@ def randomized_heuristic_clique(graph, clique_size, num_trials=1000):
     for _ in range(num_trials):
         if operations_count > 150 * graph.size() ** 2 + 100000:
             break
-        # Gera uma solução candidata
+
         candidate = generate_candidate()
         if candidate is None:
             continue
@@ -205,7 +205,6 @@ def randomized_heuristic_clique(graph, clique_size, num_trials=1000):
         tested_solutions.add(candidate_id)
         operations_count += 1
 
-        # Avalia a solução
         if is_clique(graph, candidate):
             operations_count += sum(1 for _ in itertools.combinations(candidate, 2))
             return (
