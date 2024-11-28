@@ -86,16 +86,13 @@ def monte_carlo_clique(graph, clique_size, num_trials=1000):
 
 @benchmark
 def monte_carlo_with_heuristic_clique(graph, clique_size, num_trials=1000):
-    """
-    Algoritmo Monte Carlo que combina geração aleatória com heurísticas.
-    """
     node_list = list(graph.nodes)
 
     if is_small_graph(node_list, clique_size):
         return None, 0, 0
 
     solutions_tested = set()
-    operations_count = 0  # Contador de operações
+    operations_count = 0
 
     for _ in range(num_trials):
         subset = []
@@ -104,7 +101,6 @@ def monte_carlo_with_heuristic_clique(graph, clique_size, num_trials=1000):
         neighbors = set(graph.neighbors(node))
         operations_count += 1
 
-        # Usa heurísticas para expandir o subconjunto
         while len(subset) < clique_size:
             if not neighbors or operations_count > 150 * graph.size() ** 2 + 100000:
                 break
@@ -118,7 +114,6 @@ def monte_carlo_with_heuristic_clique(graph, clique_size, num_trials=1000):
             neighbors = set(neighbors).intersection(set(graph.neighbors(candidate)))
             operations_count += 1
 
-        # Evita redundâncias
         subset_id = tuple(sorted(subset))
         operations_count += len(subset)
         if subset_id in solutions_tested:
