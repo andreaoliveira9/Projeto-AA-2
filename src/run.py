@@ -16,7 +16,6 @@ graphs = pickle.load(open("../graphs/all_graphs.pickle", "rb"))
 
 # Lista de valores de clique de tamanho k que estamos procurando
 k_values = [5, 6, 7, 8, 9, 10, 15]  # Exemplo, ajuste conforme necessário
-cliques = {}
 TIME_LIMIT = 100
 
 
@@ -35,7 +34,6 @@ def run(algorithm, name):
     results = defaultdict(dict)
     for k in k_values:
         for max_edges in EDGES_DENSITY:
-            cliques[max_edges] = {}
             for size in range(1, SIZES + 1):
                 if size > 300 and size % 5 != 0:
                     continue
