@@ -104,11 +104,14 @@ def precision_greedy_results(results, name):
     for k in results:
         for max_edges in results[k]:
             for size in results[k][max_edges]:
-                result = results[k][max_edges][size]["valid_result"]
-                if result == True or result == False:
-                    total += 1
-                    if result:
-                        valid_results += 1
+                try:
+                    result = results[k][max_edges][size]["valid_result"]
+                    if result == True or result == False:
+                        total += 1
+                        if result:
+                            valid_results += 1
+                except KeyError:
+                    continue
 
     return valid_results / total * 100
 
@@ -123,40 +126,35 @@ def main():
 
     # Plot all the files as different lines where each one is a different algorithm
     for result, file in zip(results, files):
-        if "10000" not in file and "20000" not in file and "30000" not in file:
-            if "exhaustive_clique_search" not in file:
-                precision = precision_greedy_results(
-                    result, file.replace(".pickle", "")
-                )
-                print(f"Precision for {file.replace(".pickle", "")}: {precision}%")
+        if "exhaustive_clique_search" not in file:
+            precision = precision_greedy_results(result, file.replace(".pickle", ""))
+            print(f"Precision for {file.replace(".pickle", "")}: {precision}%")
 
-            for k in k_values:
-                if "exhaustive_clique_search" in file:
-                    plot_number_of_solutions_tested_vs_graph_size(
-                        result,
-                        file.replace(".pickle", ""),
-                        k,
-                        log=True,
-                        save=True,
-                        show=False,
-                    )
-
-                plot_time_vs_number_of_vertices(
-                    result,
-                    file.replace(".pickle", ""),
-                    k,
-                    log=True,
-                    save=True,
-                    show=False,
-                )
-                plot_number_operations_vs_number_of_vertices(
-                    result,
-                    file.replace(".pickle", ""),
-                    k,
-                    log=True,
-                    save=True,
-                    show=False,
-                )
+        for k in k_values:
+            plot_number_of_solutions_tested_vs_graph_size(
+                result,
+                file.replace(".pickle", ""),
+                k,
+                log=True,
+                save=True,
+                show=False,
+            )
+            plot_time_vs_number_of_vertices(
+                result,
+                file.replace(".pickle", ""),
+                k,
+                log=True,
+                save=True,
+                show=False,
+            )
+            plot_number_operations_vs_number_of_vertices(
+                result,
+                file.replace(".pickle", ""),
+                k,
+                log=True,
+                save=True,
+                show=False,
+            )
 
 
 if __name__ == "__main__":

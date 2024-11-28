@@ -229,7 +229,7 @@ def SWlargeG(algorithm, name):
 
     pickle.dump(results, open(f"../results/pickle/SWlargeG_{name}.pickle", "wb"))
 
-    file_path = f"../results/pickle/SWlargeG_{name}.json"
+    file_path = f"../results/json/SWlargeG_{name}.json"
     os.makedirs(os.path.dirname(file_path), exist_ok=True)
     with open(file_path, "w", encoding="utf-8") as json_file:
         json.dump(
