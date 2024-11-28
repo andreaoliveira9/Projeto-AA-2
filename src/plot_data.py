@@ -142,7 +142,11 @@ def precision_greedy_results(results, name):
 def main():
     k_values = [5, 10, 15]
     # Open all the files that start with results_adaptive_randomized_vertex_cover
-    files = [f for f in os.listdir("../results/pickle") if f.endswith(".pickle")]
+    files = [
+        f
+        for f in os.listdir("../results/pickle")
+        if f.endswith(".pickle") and not f.startswith("SWlargeG")
+    ]
 
     # Load all the files
     results = [import_data(f"../results/pickle/{file}") for file in files]
